@@ -48,6 +48,6 @@ abstract public class CNPath implements ProtocolEncoder
 	 */
 	public static CNPath Symbol(final String name)
 	{
-	    return new CNSymbolMultiPath(name);
+	    return new CNSymbolPath(name);
 	}
 }

@@ -65,7 +65,6 @@ final public class CIPData {
                 throw new Exception("Unknown CIP type code 0x" + Integer.toHexString(code));
             }
             return t;
-
         }
 
         private Type(final int code, final int element_size) {

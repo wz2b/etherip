@@ -18,11 +18,17 @@ import org.epics.etherip.types.CNService;
  */
 public class CIPReadDataProtocol extends ProtocolAdapter
 {
-    private final int count;
+    private final int requestCount;
     private CIPData data;
 
+
+
+    public CIPReadDataProtocol(){
+        this(1);
+    }
+
     public CIPReadDataProtocol(int count){
-        this.count = count;
+        this.requestCount = count;
     }
 
 
@@ -35,7 +41,7 @@ public class CIPReadDataProtocol extends ProtocolAdapter
     @Override
     public void encode(final ByteBuffer buf, final StringBuilder log)
     {
-        buf.putShort((short) count); // elements
+        buf.putShort((short) requestCount); // elements
         if (log != null)
             log.append("USINT elements          : 1\n");
     }

@@ -23,7 +23,7 @@ public class MRChipReadProtocol extends MessageRouterProtocol
 	 */
     public MRChipReadProtocol(final String tag)
     {
-        this(tag, new CIPReadDataProtocol(1));
+        this(tag, 1);
     }
 
 

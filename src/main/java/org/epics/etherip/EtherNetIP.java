@@ -139,15 +139,7 @@ public class EtherNetIP implements AutoCloseable
 	
 	public CIPData readTag(final String tag) throws Exception
 	{
-		final MRChipReadProtocol cip_read = new MRChipReadProtocol(tag);
-		final Encapsulation encap =
-			new Encapsulation(Encapsulation.Command.SendRRData, connection.getSession(),
-				new SendRRDataProtocol(
-					new UnconnectedSendProtocol(slot,
-					    cip_read)));
-		connection.execute(encap);
-		
-		return cip_read.getData();
+		return readTag(tag, 1);
 	}
 
 	public CIPData readTag(final String tag, int count) throws Exception

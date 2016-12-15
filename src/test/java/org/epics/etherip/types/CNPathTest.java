@@ -9,7 +9,7 @@ package org.epics.etherip.types;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
 
@@ -34,30 +34,90 @@ public class CNPathTest
 	}
 
 	@Test
-	public void testSymbolPath()
-	{
+	public void testSimplePath() {
+		final ByteBuffer buf = ByteBuffer.allocate(9);
 		CNPath path = CNPath.Symbol("my_tag");
-		System.out.println(path.toString());
-		assertThat(path.toString(), equalTo("Path Symbol(0x91) 'my_tag'"));
-		
-		final ByteBuffer buf = ByteBuffer.allocate(20);
-		path.encode(buf, null);
-		buf.flip();
-		assertThat(Hexdump.toCompactHexdump(buf), equalTo("0000 - 04 91 06 6D 79 5F 74 61 67 - ...my_tag"));
 
-		// When using other name, must get other path
-        CNPath other = CNPath.Symbol("other_tag");
-        System.out.println(other.toString());
-        assertThat(other.toString(), not(equalTo(path.toString())));
-		
-		// With 'pad'
-		path = CNPath.Symbol("my_tag2");
-		System.out.println(path.toString());
-		assertThat(path.toString(), equalTo("Path Symbol(0x91) 'my_tag2', 0x00"));
-		
-		buf.clear();
 		path.encode(buf, null);
+
+
+		final byte [] result = new byte[buf.position()];
 		buf.flip();
-		assertThat(Hexdump.toCompactHexdump(buf), equalTo("0000 - 05 91 07 6D 79 5F 74 61 67 32 00 - ...my_tag2."));
+		buf.get(result);
+
+		final byte[] expected = {
+				0x04, (byte) 0x91, 0x06, 0x6d, 0x79, 0x5f, 0x74, 0x61, 0x67
+		};
+
+		assertArrayEquals(expected, result);
 	}
+
+
+	@Test
+	public void testSimplePathRequiresPadding() {
+		final ByteBuffer buf = ByteBuffer.allocate(11);
+		final CNPath path = CNPath.Symbol("my_tagg");
+
+		path.encode(buf, null);
+
+
+		final byte [] result = new byte[buf.position()];
+		buf.flip();
+		buf.get(result);
+
+		byte[] expected = {
+				0x05, (byte) 0x91, 0x07, 0x6d, 0x79, 0x5f, 0x74, 0x61, 0x67, 0x67, 0x00
+		};
+
+		assertArrayEquals(expected, result);
+	}
+
+	@Test
+	public void testSimplePathWithDot()
+	{
+		final ByteBuffer buf = ByteBuffer.allocate(11);
+		final CNPath path = CNPath.Symbol("test.p1");
+
+		path.encode(buf, null);
+
+
+		final byte [] result = new byte[buf.position()];
+		buf.flip();
+		buf.get(result);
+
+		byte[] expected = {
+				0x05, (byte) 0x91, 0x04, 0x74, 0x65, 0x73, 0x74, (byte) 0x91,  0x02, 0x70, 0x31
+		};
+
+		assertArrayEquals(expected, result);
+	}
+
+	@Test
+	public void testSimplePathWithDotAndPadding()
+	{
+		final ByteBuffer buf = ByteBuffer.allocate(15);
+
+
+		/*
+		 * Two padding bytes should be added because the tag (test1) and attribute (p11)
+		 * are both odd-length.
+		 */
+
+		final CNPath path = CNPath.Symbol("test1.p11");
+
+		path.encode(buf, null);
+
+
+		final byte [] result = new byte[buf.position()];
+		buf.flip();
+		buf.get(result);
+
+		byte[] expected = {
+				0x07, (byte) 0x91, 0x05, 0x74, 0x65, 0x73, 0x74, 0x31, 0x00,
+				(byte) 0x91,  0x03, 0x70, 0x31, 0x31, 0x00
+		};
+
+		assertArrayEquals(expected, result);
+	}
+
 }
