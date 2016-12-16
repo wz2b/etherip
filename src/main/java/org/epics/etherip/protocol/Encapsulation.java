@@ -10,6 +10,7 @@ package org.epics.etherip.protocol;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.epics.etherip.exceptions.DecodingException;
 import org.epics.etherip.util.Hexdump;
 
 /** Encapsulation commands
@@ -118,7 +119,7 @@ public class Encapsulation implements Protocol
     
     /** {@inheritDoc} */
     @Override
-    public int getResponseSize(final ByteBuffer buf) throws Exception
+    public int getResponseSize(final ByteBuffer buf) throws DecodingException
     {
     	// Need at least the encapsulation header
     	int needed = 24 - buf.position();
@@ -129,9 +130,9 @@ public class Encapsulation implements Protocol
     	final short command_code = buf.getShort(0);
 		final Command command = Command.forCode(command_code);
     	if (command == null)
-    		throw new Exception("Received unknown command code " + command_code);
+    		throw new DecodingException("Received unknown command code " + command_code);
     	if (command != this.command)
-    		throw new Exception("Received command " + command + " instead of " + this.command);
+    		throw new DecodingException("Received command " + command + " instead of " + this.command);
     	
     	final short body_size = buf.getShort(2);
     	
@@ -140,15 +141,15 @@ public class Encapsulation implements Protocol
     
     /** {@inheritDoc} */
     @Override
-    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws Exception
+    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws DecodingException
     {
     	// Start decoding
     	final short command_code = buf.getShort();
 		final Command command = Command.forCode(command_code);
     	if (command == null)
-    		throw new Exception("Received unknown command code " + command_code);
+    		throw new DecodingException("Received unknown command code " + command_code);
     	if (command != this.command)
-    		throw new Exception("Received command " + command + " instead of " + this.command);
+    		throw new DecodingException("Received command " + command + " instead of " + this.command);
     	
     	final short body_size = buf.getShort();
     	
@@ -159,7 +160,7 @@ public class Encapsulation implements Protocol
     		if (this.session == 0)
     			this.session = session;
     		else // Error: Session changed
-    			throw new Exception("Received session " + session + " instead of " + this.session);
+    			throw new DecodingException("Received session " + session + " instead of " + this.session);
     	}
 
     	final int status = buf.getInt();
@@ -167,7 +168,7 @@ public class Encapsulation implements Protocol
     	final byte[] context = new byte[8];
     	buf.get(context);
     	if (!Arrays.equals(context, Encapsulation.context))
-    		throw new Exception("Received context " + Hexdump.toAscii(context));
+    		throw new DecodingException("Received context " + Hexdump.toAscii(context));
     	
     	final int options = buf.getInt();
     	
@@ -183,9 +184,9 @@ public class Encapsulation implements Protocol
         }
         
         if (status != 0)
-        	throw new Exception(String.format("Received status 0x%08X (%s)\n", status, getStatusMessage(status)));
+        	throw new DecodingException(String.format("Received status 0x%08X (%s)\n", status, getStatusMessage(status)));
         if (buf.remaining() < body_size)
-        	throw new Exception("Need " + body_size + " more bytes, have " + buf.remaining());
+        	throw new DecodingException("Need " + body_size + " more bytes, have " + buf.remaining());
         
         body.decode(buf, body_size, log);
     }

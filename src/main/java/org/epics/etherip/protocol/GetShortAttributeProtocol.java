@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.epics.etherip.protocol;
 
+import org.epics.etherip.exceptions.DecodingException;
+
 import java.nio.ByteBuffer;
 
 /** Decode a <code>short</code> attribute
@@ -18,7 +20,7 @@ public class GetShortAttributeProtocol extends ProtocolAdapter
 
 	/** {@inheritDoc} */
 	@Override
-	public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws Exception
+	public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws DecodingException
 	{
 		value = buf.getShort();
 		if (log != null)

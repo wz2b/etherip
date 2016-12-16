@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.epics.etherip.protocol;
 
+import org.epics.etherip.exceptions.DecodingException;
+
 import java.nio.ByteBuffer;
 
 /** Base for protocol handler with NOP implementations
@@ -30,14 +32,14 @@ public class ProtocolAdapter implements Protocol
 
 	/** {@inheritDoc} */
 	@Override
-    public int getResponseSize(final ByteBuffer buf) throws Exception
+    public int getResponseSize(final ByteBuffer buf) throws DecodingException
     {
 	    return 0;
     }
 
 	/** {@inheritDoc} */
 	@Override
-    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws Exception
+    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws DecodingException
     {
 		// NOP
     }

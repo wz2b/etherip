@@ -9,6 +9,7 @@ package org.epics.etherip.protocol;
 
 import java.nio.ByteBuffer;
 
+import org.epics.etherip.exceptions.DecodingException;
 import org.epics.etherip.types.CNService;
 
 /** Protocol for {@link CNService#CIP_MultiRequest}
@@ -73,7 +74,7 @@ public class CIPMultiRequestProtocol extends ProtocolAdapter
     }
 
     @Override
-    public int getResponseSize(final ByteBuffer buf) throws Exception
+    public int getResponseSize(final ByteBuffer buf) throws DecodingException
     {
         int total = 0;
         for (ProtocolAdapter service : services)
@@ -83,7 +84,7 @@ public class CIPMultiRequestProtocol extends ProtocolAdapter
 
     @Override
     public void decode(final ByteBuffer buf, final int available, final StringBuilder log)
-            throws Exception
+            throws DecodingException
     {
         final int start = buf.position();
 
@@ -106,7 +107,7 @@ public class CIPMultiRequestProtocol extends ProtocolAdapter
         {   // Track buffer offset from start
             final int off = buf.position() - start;
             if (off != offset[i])
-                throw new Exception("Expected response #" + (i+1) + " at offset " + offset[i] + ", not " + off);
+                throw new DecodingException("Expected response #" + (i+1) + " at offset " + offset[i] + ", not " + off);
             
             // Determine length of this section
             final int section_length;

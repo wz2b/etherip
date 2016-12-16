@@ -9,6 +9,7 @@ package org.epics.etherip.protocol;
 
 import java.nio.ByteBuffer;
 
+import org.epics.etherip.exceptions.DecodingException;
 import org.epics.etherip.util.Hexdump;
 
 /** Protocol body for listing services that the device supports
@@ -54,7 +55,7 @@ public class ListServicesProtocol extends ProtocolAdapter
 	private Service[] services;
 		
 	@Override
-	public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws Exception
+	public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws DecodingException
 	{
 		// Decode reply to ListServices
 		final int count = buf.getShort();

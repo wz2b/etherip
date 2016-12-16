@@ -13,6 +13,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.epics.etherip.exceptions.DecodingException;
 import org.epics.etherip.protocol.Connection;
 
 /**
@@ -59,10 +60,10 @@ final public class CIPData {
             }
         }
 
-        public static Type forCode(final short code) throws Exception {
+        public static Type forCode(final short code) throws DecodingException {
             Type t = reverse.get(code);
             if (reverse == null) {
-                throw new Exception("Unknown CIP type code 0x" + Integer.toHexString(code));
+                throw new DecodingException("Unknown CIP type code 0x" + Integer.toHexString(code));
             }
             return t;
         }
@@ -127,7 +128,7 @@ final public class CIPData {
      * @param data Bytes that contain the raw CIP data
      * @throws Exception when data is invalid
      */
-    public CIPData(final Type type, final byte[] data) throws Exception {
+    public CIPData(final Type type, final byte[] data) throws DecodingException {
         this.type = type;
         this.data = ByteBuffer.allocate(data.length);
         this.data.order(Connection.BYTE_ORDER);
@@ -138,7 +139,7 @@ final public class CIPData {
     /**
      * @return Number of elements
      */
-    final private short determineElementCount() throws Exception {
+    final private short determineElementCount() throws DecodingException {
         switch (type) {
             case BOOL:
             case SINT:
@@ -152,10 +153,10 @@ final public class CIPData {
                 if (el_type == Type.STRUCT_STRING)
                     return 1;
                 else
-                    throw new Exception("Structure elements of type " + type + " not handled");
+                    throw new DecodingException("Structure elements of type " + type + " not handled");
             }
             default:
-                throw new Exception("Type " + type + " not handled");
+                throw new DecodingException("Type " + type + " not handled");
         }
     }
 

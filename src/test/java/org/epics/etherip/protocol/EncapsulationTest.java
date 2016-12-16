@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
 
 
 import org.epics.etherip.TestSettings;
+import org.epics.etherip.exceptions.DecodingException;
 import org.epics.etherip.util.Hexdump;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class EncapsulationTest
             }
 
 			@Override
-            public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws Exception
+            public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws DecodingException
             {
 				body_size = available;
             }

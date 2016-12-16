@@ -7,6 +7,9 @@
  *******************************************************************************/
 package org.epics.etherip;
 
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,12 +58,11 @@ public class EtherNetIP implements AutoCloseable
 	/** Connect to device, register session, obtain basic info
 	 *  @throws Exception on error
 	 */
-	public void connect() throws Exception
-	{
+	public DeviceInfo connect() throws IOException, InterruptedException, ExecutionException, TimeoutException, Exception {
 		connection = new Connection(address, slot);
 		listServices();
 		registerSession();
-		getDeviceInfo();
+		return getDeviceInfo();
 	}
 	
 	/** List supported services
@@ -92,7 +94,7 @@ public class EtherNetIP implements AutoCloseable
 	/** Obtain device info
 	 *  @throws Exception on error
 	 */
-	private void getDeviceInfo() throws Exception
+	private DeviceInfo getDeviceInfo() throws Exception
     {
 		final short vendor = getShortAttribute(1);
 		final short device_type = getShortAttribute(2);
@@ -101,6 +103,7 @@ public class EtherNetIP implements AutoCloseable
 		final String name = getStringAttribute(7);
 		device_info = new DeviceInfo(vendor, device_type, revision, serial, name);
 		logger.log(Level.INFO, "{0}", device_info);
+		return device_info;
     }
 
 	/** Helper for reading a 'short' typed attribute
@@ -142,8 +145,7 @@ public class EtherNetIP implements AutoCloseable
 		return readTag(tag, 1);
 	}
 
-	public CIPData readTag(final String tag, int count) throws Exception
-	{
+	public CIPData readTag(final String tag, int count) throws Exception {
 		final MRChipReadProtocol cip_read = new MRChipReadProtocol(tag, count);
 		final Encapsulation encap =
 				new Encapsulation(Encapsulation.Command.SendRRData, connection.getSession(),
@@ -219,7 +221,7 @@ public class EtherNetIP implements AutoCloseable
 			logger.log(Level.WARNING, "Error un-registering session", ex);
 		}
 	}
-	
+
 	/** Close connection to device */
 	@Override
     public void close() throws Exception

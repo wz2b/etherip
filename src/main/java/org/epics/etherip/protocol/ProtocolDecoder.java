@@ -7,6 +7,9 @@
  *******************************************************************************/
 package org.epics.etherip.protocol;
 
+import org.epics.etherip.exceptions.DecodingException;
+
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /** Decode bytes of a protocol
@@ -33,7 +36,7 @@ public interface ProtocolDecoder
      *  @return Number of remaining bytes needed.
      *          0 if buffer contains complete protocol response.
      */
-    public int getResponseSize(ByteBuffer buf) throws Exception;
+    public int getResponseSize(ByteBuffer buf) throws IOException, DecodingException;
 
     /** Decode protocol from buffer.
      * 
@@ -51,5 +54,5 @@ public interface ProtocolDecoder
 	 *  @param log If not-<code>null</code>, {@link StringBuilder} where protocol detail
 	 *             for log should be written
      */
-    public void decode(ByteBuffer buf, int available, StringBuilder log) throws Exception;
+    public void decode(ByteBuffer buf, int available, StringBuilder log) throws DecodingException;
 }

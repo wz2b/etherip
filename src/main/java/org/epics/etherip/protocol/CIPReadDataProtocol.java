@@ -9,6 +9,7 @@ package org.epics.etherip.protocol;
 
 import java.nio.ByteBuffer;
 
+import org.epics.etherip.exceptions.DecodingException;
 import org.epics.etherip.types.CIPData;
 import org.epics.etherip.types.CNService;
 
@@ -47,7 +48,7 @@ public class CIPReadDataProtocol extends ProtocolAdapter
     }
 
     @Override
-    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws Exception
+    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws DecodingException
     {
         if (available <= 0)
         {

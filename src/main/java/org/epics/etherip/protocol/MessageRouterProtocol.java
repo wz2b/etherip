@@ -9,6 +9,7 @@ package org.epics.etherip.protocol;
 
 import java.nio.ByteBuffer;
 
+import org.epics.etherip.exceptions.DecodingException;
 import org.epics.etherip.types.CNPath;
 import org.epics.etherip.types.CNService;
 
@@ -62,21 +63,21 @@ public class MessageRouterProtocol extends ProtocolAdapter
     
     /** {@inheritDoc} */
     @Override
-    public int getResponseSize(final ByteBuffer buf) throws Exception
+    public int getResponseSize(final ByteBuffer buf) throws DecodingException
     {
     	throw new IllegalStateException("Unknown response size");
     }
     
     /** {@inheritDoc} */
     @Override
-    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws Exception
+    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws DecodingException
     {
     	final byte service_code = buf.get();
     	final CNService reply = CNService.forCode(service_code);
     	if (reply == null)
-    		throw new Exception("Received reply with unknown service code 0x" + Integer.toHexString(service_code));
+    		throw new DecodingException("Received reply with unknown service code 0x" + Integer.toHexString(service_code));
     	if (! reply.isReply())
-    		throw new Exception("Expected reply, got " + reply);
+    		throw new DecodingException("Expected reply, got " + reply);
     	
     	final int reserved = buf.get();
     	status = buf.get();
@@ -98,7 +99,7 @@ public class MessageRouterProtocol extends ProtocolAdapter
         }
         final CNService expected_reply = service.getReply();
         if (expected_reply != null  &&  expected_reply!= reply)
-            throw new Exception("Expected " + expected_reply + ", got " + reply);
+            throw new DecodingException("Expected " + expected_reply + ", got " + reply);
     	
     	body.decode(buf, available - 4 - 2*ext_status_size, log);
     }

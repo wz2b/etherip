@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.epics.etherip.protocol;
 
+import org.epics.etherip.exceptions.DecodingException;
 import org.epics.etherip.types.CNPath;
 import org.epics.etherip.types.CNService;
 
@@ -84,7 +85,7 @@ public class UnconnectedSendProtocol extends ProtocolAdapter
     
     /** {@inheritDoc} */
     @Override
-    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws Exception
+    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws DecodingException
     {
     	// CM_Unconnected_Send wraps a request.
     	// The response then arrives without CM_Unconnected_Send wrapper,

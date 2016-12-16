@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.epics.etherip.protocol;
 
+import org.epics.etherip.exceptions.DecodingException;
+
 import java.nio.ByteBuffer;
 
 /** SendRRData, the unconnected Request/Response protocol
@@ -64,15 +66,15 @@ public class SendRRDataProtocol extends ProtocolAdapter
     
     /** {@inheritDoc} */
     @Override
-    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws Exception
+    public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws DecodingException
     {
     	final int iface = buf.getInt();
     	if (iface != 0)
-    		throw new Exception("Received interface " + iface + " instead of 0");
+    		throw new DecodingException("Received interface " + iface + " instead of 0");
     	final short timeout = buf.getShort();
     	final short count = buf.getShort();
     	if (count != 2)
-    		throw new Exception("Received count " + count + " instead of 2");
+    		throw new DecodingException("Received count " + count + " instead of 2");
     	final short addr_type = buf.getShort();
     	final short addr_length = buf.getShort();
     	final short data_type = buf.getShort();

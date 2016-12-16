@@ -10,12 +10,16 @@ package org.epics.etherip.protocol;
 import static org.epics.etherip.EtherNetIP.logger;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
+import org.epics.etherip.exceptions.DecodingException;
 import org.epics.etherip.util.Hexdump;
 
 /** Connection to EtherNet/IP device
@@ -47,13 +51,13 @@ public class Connection implements AutoCloseable
 	 *  @param slot Slot number 0, 1, .. of the controller within PLC crate
 	 *  @throws Exception on error
 	 */
-	public Connection(final String address, final int slot) throws Exception
+	public Connection(final String address, final int slot) throws IOException, InterruptedException, TimeoutException, ExecutionException
 	{
 	    logger.log(Level.INFO, "Connecting to {0}:{1}", new Object[] { address, String.format("0x%04X", port) });
 	    this.slot = slot;
         channel = AsynchronousSocketChannel.open();
 		channel.connect(new InetSocketAddress(address, port)).get(timeout_ms, MILLISECONDS);
-		
+
 		buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 		buffer.order(BYTE_ORDER);
 	}
@@ -92,8 +96,7 @@ public class Connection implements AutoCloseable
 	 *  @param encoder {@link ProtocolEncoder} used to <code>encode</code> buffer
 	 *  @throws Exception on error
 	 */
-	public void write(final ProtocolEncoder encoder) throws Exception
-    {
+	public void write(final ProtocolEncoder encoder) throws InterruptedException, IOException, ExecutionException, TimeoutException {
 		final StringBuilder log = logger.isLoggable(Level.FINER) ? new StringBuilder() : null;
 		buffer.clear();
 		encoder.encode(buffer, log);
@@ -108,7 +111,16 @@ public class Connection implements AutoCloseable
 		int to_write = buffer.limit();
 		while (to_write > 0)
 		{
-			final int written = channel.write(buffer).get(timeout_ms, MILLISECONDS);
+			int written;
+			try {
+				written = channel.write(buffer).get(timeout_ms, MILLISECONDS);
+			} catch (ExecutionException e) {
+				if(e.getCause() != null  &&  e.getCause() instanceof IOException) {
+					throw (IOException)(e.getCause());
+				} else {
+					throw e;
+				}
+			}
 			to_write -= written;
 			if (to_write > 0)
 				buffer.compact();
@@ -119,13 +131,18 @@ public class Connection implements AutoCloseable
 	 *  @param decoder {@link ProtocolDecoder} used to <code>decode</code> buffer
 	 *  @throws Exception on error
 	 */
-	public void read(final ProtocolDecoder decoder) throws Exception
-    {
+	public void read(final ProtocolDecoder decoder) throws IOException, InterruptedException, ExecutionException, TimeoutException, DecodingException {
 		// Read until protocol has enough data to decode
 		buffer.clear();
 		do
 		{
-			channel.read(buffer).get(timeout_ms, MILLISECONDS);
+			try {
+				channel.read(buffer).get(timeout_ms, MILLISECONDS);
+			} catch (ExecutionException e) {
+				if(e.getCause() != null && e.getCause() instanceof IOException) {
+					throw (IOException) e.getCause();
+				}
+			}
 		}
 		while (buffer.position() < decoder.getResponseSize(buffer));
 		

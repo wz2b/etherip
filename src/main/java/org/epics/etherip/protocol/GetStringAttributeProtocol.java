@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.epics.etherip.protocol;
 
+import org.epics.etherip.exceptions.DecodingException;
+
 import java.nio.ByteBuffer;
 
 /** Decode a <code>String</code> attribute
@@ -18,11 +20,11 @@ public class GetStringAttributeProtocol extends ProtocolAdapter
 	
 	/** {@inheritDoc} */
 	@Override
-	public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws Exception
+	public void decode(final ByteBuffer buf, final int available, final StringBuilder log) throws DecodingException
 	{
 		final int len = buf.get() & 0x7F;
 		if (len > available-1)
-			throw new Exception("String length of " + len + " exceeds remaining data (" + (available-1) + " bytes)");
+			throw new DecodingException("String length of " + len + " exceeds remaining data (" + (available-1) + " bytes)");
 		final byte[] raw = new byte[len];
 		buf.get(raw);
 		value = new String(raw);
