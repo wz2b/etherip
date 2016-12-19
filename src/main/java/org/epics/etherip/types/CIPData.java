@@ -125,7 +125,7 @@ final public class CIPData {
      * Initialize
      *
      * @param type Data type
-     * @param data Bytes that contain the raw CIP data
+     * @param dattypea Bytes that contain the raw CIP data
      * @throws Exception when data is invalid
      */
     public CIPData(final Type type, final byte[] data) throws DecodingException {
